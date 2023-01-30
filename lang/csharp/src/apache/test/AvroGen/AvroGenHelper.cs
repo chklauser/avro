@@ -181,7 +181,7 @@ namespace Avro.Test.AvroGen
             if (typeNamesToCheck != null)
             {
                 // Check if the compiled code has the same number of types defined as the check list
-                Assert.That(typeNamesToCheck.Count(), Is.EqualTo(assembly.DefinedTypes.Count()));
+                Assert.That(typeNamesToCheck.Count(), Is.EqualTo(GetRelevantDefinedTypes(assembly).Count()));
 
                 // Check if types available in compiled assembly
                 foreach (string typeName in typeNamesToCheck)
@@ -281,6 +281,17 @@ namespace Avro.Test.AvroGen
             {
                 Directory.Delete(outputDir, true);
             }
+        }
+
+        /// <summary>
+        /// Like <see cref="Assembly.DefinedTypes"/> but filters out C# compiler-generated types (nullability, etc.).
+        /// </summary>
+        public static IEnumerable<Type> GetRelevantDefinedTypes(Assembly assembly)
+        {
+            return assembly.DefinedTypes.Where(ty =>
+                ty.FullName != "Microsoft.CodeAnalysis.EmbeddedAttribute"
+                && ty.FullName != "System.Runtime.CompilerServices.NullableAttribute"
+                && ty.FullName != "System.Runtime.CompilerServices.NullableContextAttribute");
         }
     }
 }

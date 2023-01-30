@@ -346,7 +346,7 @@ namespace Avro.Test.AvroGen
                 if (typeNamesToCheck != null)
                 {
                     // Check if the compiled code has the same number of types defined as the check list
-                    Assert.That(typeNamesToCheck.Count(), Is.EqualTo(assembly.DefinedTypes.Count()));
+                    Assert.That(typeNamesToCheck.Count(), Is.EqualTo(AvroGenHelper.GetRelevantDefinedTypes(assembly).Count()));
 
                     // Check if types available in compiled assembly
                     foreach (string typeName in typeNamesToCheck)
@@ -361,7 +361,7 @@ namespace Avro.Test.AvroGen
                 }
 
                 // Verify GeneratedCodeAttribute
-                foreach(System.Reflection.TypeInfo definedType in assembly.DefinedTypes)
+                foreach(System.Reflection.TypeInfo definedType in AvroGenHelper.GetRelevantDefinedTypes(assembly))
                 {
                     var generatedAttributes = definedType.CustomAttributes.Where(x => x.AttributeType.FullName == "System.CodeDom.Compiler.GeneratedCodeAttribute");
                     Assert.That(generatedAttributes, Is.Not.Null);

@@ -912,6 +912,7 @@ namespace Avro
         /// <param name="nullible">flag to indicate union with null.</param>
         /// <param name="nullibleEnum">This method sets this value to indicate whether the enum is nullable. True indicates
         /// that it is nullable. False indicates that it is not nullable.</param>
+        /// <param name="runtimeTypeName">flag to indicate whether to generate the runtime type name instead. Default: false (generate compile time type name)</param>
         /// <returns>
         /// Name of the schema's C# type representation.
         /// </returns>
@@ -930,7 +931,7 @@ namespace Avro
         /// or
         /// Unable to generate CodeTypeReference for " + schema.Name + " type " + schema.Tag.
         /// </exception>
-        internal static string getType(Schema schema, bool nullible, ref bool nullibleEnum)
+        internal static string getType(Schema schema, bool nullible, ref bool nullibleEnum, bool runtimeTypeName = false)
         {
             switch (schema.Tag)
             {
@@ -982,7 +983,7 @@ namespace Avro
                         throw new CodeGenException("Unable to cast schema into a named schema");
                     }
 
-                    return CodeGenUtil.Instance.Mangle(namedSchema.Fullname);
+                    return CodeGenUtil.Instance.Mangle(namedSchema.Fullname) + (nullible && !runtimeTypeName ? "?" : string.Empty);
 
                 case Schema.Type.Array:
                     var arraySchema = schema as ArraySchema;
@@ -991,7 +992,7 @@ namespace Avro
                         throw new CodeGenException("Unable to cast schema into an array schema");
                     }
 
-                    return "IList<" + getType(arraySchema.ItemSchema, false, ref nullibleEnum) + ">";
+                    return "IList<" + getType(arraySchema.ItemSchema, false, ref nullibleEnum, runtimeTypeName) + ">";
 
                 case Schema.Type.Map:
                     var mapSchema = schema as MapSchema;
@@ -1000,7 +1001,7 @@ namespace Avro
                         throw new CodeGenException("Unable to cast schema into a map schema");
                     }
 
-                    return "IDictionary<string," + getType(mapSchema.ValueSchema, false, ref nullibleEnum) + ">";
+                    return "IDictionary<string," + getType(mapSchema.ValueSchema, false, ref nullibleEnum, runtimeTypeName) + ">";
 
                 case Schema.Type.Union:
                     var unionSchema = schema as UnionSchema;
@@ -1011,7 +1012,7 @@ namespace Avro
 
                     Schema nullibleType = GetNullableType(unionSchema);
 
-                    return nullibleType == null ? CodeGenUtil.Object : getType(nullibleType, true, ref nullibleEnum);
+                    return nullibleType == null ? CodeGenUtil.Object : getType(nullibleType, true, ref nullibleEnum, runtimeTypeName);
 
                 case Schema.Type.Logical:
                     var logicalSchema = schema as LogicalSchema;

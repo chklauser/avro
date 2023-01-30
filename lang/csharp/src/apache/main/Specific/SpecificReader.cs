@@ -255,14 +255,14 @@ namespace Avro.Specific
         }
 
         /// <summary>
-        /// Gets the target type name in the given schema
+        /// Gets the target runtime type name in the given schema
         /// </summary>
         /// <param name="schema">schema containing the type to be determined</param>
         /// <returns>Name of the type</returns>
         protected virtual string getTargetType(Schema schema)
         {
             bool nEnum = false;
-            string type = Avro.CodeGen.getType(schema, false, ref nEnum);
+            string type = Avro.CodeGen.getType(schema, false, ref nEnum, true);
             if (schema.Tag == Schema.Type.Array)
             {
                 type = type.Remove(0, 6);              // remove IList<
